@@ -1,12 +1,30 @@
 import React from "react";
+import { notFound } from 'next/navigation'
+
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+    const res = await fetch("http://localhost:4000/tickets/")
+    const tickets = await res.json();
+
+    return tickets.map((ticket) => ({
+        id: ticket.id
+    }))
+}
 
 async function getTickets(id) {
-  const response = await fetch("http://localhost:4000/tickets/" + id, {
+  const res = await fetch("http://localhost:4000/tickets/" + id, {
     next: {
       revalidate: 60, // revalidate every 0 sec
     },
   });
-  return await response.json();
+    
+    if (!res.ok) {
+        //notFound();
+        notFound();
+    }
+    return res.json();
+
 }
 
 export default async function TicketDetails({ params }) {
